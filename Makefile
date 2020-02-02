@@ -1,4 +1,5 @@
-CC=gcc
+CC = gcc
+DST = bin
 
 $(TARGET):
-	$(CC) $@.c -o $@
+	$(CC) $@.c -o $(DST)/$@
