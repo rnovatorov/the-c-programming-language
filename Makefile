@@ -1,5 +1,5 @@
 CC = gcc
 DST = bin
 
-$(TARGET):
+$(patsubst %.c,%,$(wildcard *.c)):
 	$(CC) $@.c -o $(DST)/$@
