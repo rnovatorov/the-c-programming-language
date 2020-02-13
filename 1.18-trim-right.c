@@ -1,22 +1,18 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-void trimSpaces() {
+void trimChar(char t) {
     int n = 0;
+    char c;
 
-    while (true) {
-        char c = getchar();
-        switch (c) {
-        case EOF:
-            return;
-        case ' ':
+    while ((c = getchar()) != EOF) {
+        if (c == t) {
             n++;
-            break;
-        case '\n':
+        } else if (c == '\n') {
             n = 0;
-        default:
+        } else {
             for (; n > 0; n--) {
-                putchar(' ');
+                putchar(t);
             }
             putchar(c);
         }
@@ -24,6 +20,6 @@ void trimSpaces() {
 }
 
 int main() {
-    trimSpaces();
+    trimChar(' ');
     return 0;
 }
