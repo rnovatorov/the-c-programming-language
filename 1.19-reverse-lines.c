@@ -3,14 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-void reverse(char from[], char to[], int len) {
-    int i;
+void reverse(char line[], int len) {
+    char tmp;
+    int left, right;
 
-    for (i = 0; i < len; i++) {
-        to[i] = from[len - i - 1];
+    for (left = 0, right = len - 1; left < right; left++, right--) {
+        tmp = line[left];
+        line[left] = line[right];
+        line[right] = tmp;
     }
-
-    to[i] = '\0';
 }
 
 int readline(char buf[], int maxlen) {
@@ -31,11 +32,11 @@ int readline(char buf[], int maxlen) {
 int main() {
     int len;
     int maxlen = 4;
-    char line[maxlen], reversed[maxlen];
+    char line[maxlen];
 
     while ((len = readline(line, maxlen)) > 0) {
-        reverse(line, reversed, len);
-        printf("%s\n", reversed);
+        reverse(line, len);
+        printf("%s\n", line);
     }
 
     return 0;
