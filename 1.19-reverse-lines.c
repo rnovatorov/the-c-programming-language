@@ -26,7 +26,7 @@ int readline(char buf[], int maxlen) {
         buf[i++] = c;
     }
 
-    return -i;
+    return -1;
 }
 
 int main() {
