@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "lib/strncopy.h"
+
 int cmpch(char a, char b) { return (a < b) - (b < a); }
 
 void test_cmpch() {
@@ -34,34 +36,24 @@ void test_ncmp() {
     assert(ncmp("ba", "bb", 2) > 0);
 }
 
-int ncopy(char *dst, char *src, int n) {
-    int i;
-    for (i = 0; i < n; i++) {
-        if (!(*dst++ = *src++)) {
-            break;
-        }
-    }
-    return i;
-}
-
 void test_ncopy_n_lt() {
     char to[] = "12345678";
     char from[] = "abcd";
-    ncopy(to, from, 2);
+    strncopy(to, from, 2);
     assert(!(ncmp(to, "ab345678", 8)));
 }
 
 void test_ncopy_n_eq() {
     char to[] = "12345678";
     char from[] = "abcd";
-    ncopy(to, from, 4);
+    strncopy(to, from, 4);
     assert(!(ncmp(to, "abcd5678", 8)));
 }
 
 void test_ncopy_n_gt() {
     char to[] = "12345678";
     char from[] = "abcd";
-    ncopy(to, from, 6);
+    strncopy(to, from, 6);
     assert(!(ncmp(to, "abcd5678", 8)));
 }
 
@@ -69,7 +61,7 @@ int ncat(char *left, char *right, int n) {
     while (*left) {
         left++;
     }
-    return ncopy(left, right, n);
+    return strncopy(left, right, n);
 }
 
 void test_ncat() {
