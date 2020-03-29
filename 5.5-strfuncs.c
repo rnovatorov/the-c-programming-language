@@ -2,11 +2,19 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+int cmpch(char a, char b) { return (a < b) - (b < a); }
+
+void test_cmpch() {
+    assert(cmpch('b', 'a') < 0);
+    assert(cmpch('a', 'a') == 0);
+    assert(cmpch('a', 'b') > 0);
+}
+
 int ncmp(char *a, char *b, int n) {
-    int delta = *b - *a;
+    int delta = cmpch(*a, *b);
     int i = 0;
     while (i < n && !delta && *a) {
-        delta = *b - *a;
+        delta = cmpch(*a, *b);
         a++, b++, i++;
     }
     return delta;
@@ -72,6 +80,8 @@ void test_ncat() {
 }
 
 int main() {
+    test_cmpch();
+
     test_ncmp();
 
     test_ncopy_n_lt();
