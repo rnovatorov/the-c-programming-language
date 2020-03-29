@@ -8,7 +8,7 @@
 int main() {
     char buf[N] = {0};
 
-    while (readline(buf, N)) {
+    while (readline(buf, N, stdin)) {
         printf("%s", buf);
     }
 
