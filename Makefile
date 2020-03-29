@@ -1,3 +1,4 @@
+SHELL=/bin/sh
 CC = gcc
 DST = bin
 
