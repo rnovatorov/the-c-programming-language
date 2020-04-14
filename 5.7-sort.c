@@ -11,57 +11,8 @@
 #define MAXLEN 256
 #define MAXLINES 2048
 
-struct linestore {
-    struct dynarray *lines;
-};
-
-struct linestore *linestore_alloc() {
-    struct linestore *s = malloc(sizeof(struct linestore));
-    if (s == NULL) {
-        return NULL;
-    }
-
-    s->lines = dynarray_alloc(0);
-    if (s->lines == NULL) {
-        free(s);
-        return NULL;
-    }
-
-    return s;
-}
-
-char *linestore_add(struct linestore *s, char *src, size_t len) {
-    assert(s != NULL);
-
-    char *dst = malloc((len + 1) * sizeof(char *));
-    if (dst == NULL) {
-        return NULL;
-    }
-
-    strncopy(dst, src, len);
-    dst[len] = '\0';
-
-    bool ok = dynarray_append(s->lines, dst);
-    if (!ok) {
-        free(dst);
-        return NULL;
-    }
-
-    return dst;
-}
-
-void linestore_free(struct linestore *s) {
-    assert(s != NULL);
-
-    for (int i = 0; i < dynarray_len(s->lines); i++) {
-        free(dynarray_get(s->lines, i));
-    }
-    dynarray_free(s->lines);
-    free(s);
-}
-
 struct sorter {
-    struct linestore *lines;
+    struct dynarray *lines;
     struct heapq *q;
 };
 
@@ -71,7 +22,7 @@ struct sorter *sorter_alloc() {
         return NULL;
     }
 
-    s->lines = linestore_alloc();
+    s->lines = dynarray_alloc(0);
     if (s->lines == NULL) {
         free(s);
         return NULL;
@@ -90,20 +41,40 @@ struct sorter *sorter_alloc() {
 void sorter_free(struct sorter *s) {
     assert(s != NULL);
 
+    for (int i = 0; i < dynarray_len(s->lines); i++) {
+        free(dynarray_get(s->lines, i));
+    }
+    dynarray_free(s->lines);
+
     free(s->q);
-    free(s->lines);
     free(s);
 }
 
-bool sorter_push(struct sorter *s, char *src, size_t len) {
+bool sorter_push(struct sorter *s, char *buf, size_t len) {
     assert(s != NULL);
 
-    char *line = linestore_add(s->lines, src, len);
+    char *line = malloc((len + 1) * sizeof(char *));
     if (line == NULL) {
         return false;
     }
 
-    return heapq_push(s->q, line);
+    strncopy(line, buf, len);
+    line[len] = '\0';
+
+    bool ok = dynarray_append(s->lines, line);
+    if (!ok) {
+        free(line);
+        return false;
+    }
+
+    ok = heapq_push(s->q, line);
+    if (!ok) {
+        dynarray_pop(s->lines);
+        free(line);
+        return false;
+    }
+
+    return line;
 }
 
 char *sorter_pop(struct sorter *s) {
