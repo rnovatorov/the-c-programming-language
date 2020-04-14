@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "lib/readline.c"
+#include "lib/readline.h"
 
 #define N 8
 
