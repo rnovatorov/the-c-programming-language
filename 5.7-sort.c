@@ -30,7 +30,7 @@ struct sorter *sorter_alloc() {
 
     s->q = heapq_alloc();
     if (s->q == NULL) {
-        free(s->lines);
+        dynarray_free(s->lines);
         free(s);
         return NULL;
     }
@@ -46,7 +46,7 @@ void sorter_free(struct sorter *s) {
     }
     dynarray_free(s->lines);
 
-    free(s->q);
+    heapq_free(s->q);
     free(s);
 }
 
