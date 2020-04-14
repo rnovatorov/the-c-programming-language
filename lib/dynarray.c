@@ -11,8 +11,6 @@ struct dynarray {
 };
 
 struct dynarray *dynarray_alloc(size_t len) {
-    assert(len >= 0);
-
     struct dynarray *d = malloc(sizeof(struct dynarray));
     if (d == NULL) {
         return NULL;
