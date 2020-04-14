@@ -74,7 +74,7 @@ bool sorter_push(struct sorter *s, char *buf, size_t len) {
         return false;
     }
 
-    return line;
+    return true;
 }
 
 char *sorter_pop(struct sorter *s) {
