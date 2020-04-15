@@ -8,8 +8,8 @@
 #include "lib/readline.h"
 #include "lib/strncopy.h"
 
-#define MAXLEN 256
-#define MAXLINES 2048
+#define MAXLEN 8
+#define MAXLINES 8
 
 struct sorter {
     struct dynarray *q;
