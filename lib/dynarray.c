@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include <stdio.h>
+
 #define DYNARRAY_GROWTH_FACTOR 2
 
 struct dynarray {

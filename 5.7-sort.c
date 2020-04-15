@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "lib/dynarray.h"
-#include "lib/heapq.h"
+#include "lib/heap.h"
 #include "lib/readline.h"
 #include "lib/strncopy.h"
 
@@ -12,8 +12,7 @@
 #define MAXLINES 2048
 
 struct sorter {
-    struct dynarray *lines;
-    struct heapq *q;
+    struct dynarray *q;
 };
 
 struct sorter *sorter_alloc() {
@@ -22,15 +21,8 @@ struct sorter *sorter_alloc() {
         return NULL;
     }
 
-    s->lines = dynarray_alloc(0);
-    if (s->lines == NULL) {
-        free(s);
-        return NULL;
-    }
-
-    s->q = heapq_alloc();
+    s->q = dynarray_alloc(0);
     if (s->q == NULL) {
-        dynarray_free(s->lines);
         free(s);
         return NULL;
     }
@@ -41,12 +33,11 @@ struct sorter *sorter_alloc() {
 void sorter_free(struct sorter *s) {
     assert(s != NULL);
 
-    for (int i = 0; i < dynarray_len(s->lines); i++) {
-        free(dynarray_get(s->lines, i));
+    for (int i = 0; i < dynarray_len(s->q); i++) {
+        free(dynarray_get(s->q, i));
     }
-    dynarray_free(s->lines);
+    dynarray_free(s->q);
 
-    heapq_free(s->q);
     free(s);
 }
 
@@ -61,29 +52,21 @@ bool sorter_push(struct sorter *s, char *buf, size_t len) {
     strncopy(line, buf, len);
     line[len] = '\0';
 
-    bool ok = dynarray_append(s->lines, line);
+    bool ok = heap_push(s->q, line);
     if (!ok) {
         free(line);
         return false;
     }
-
-    ok = heapq_push(s->q, line);
-    if (!ok) {
-        dynarray_pop(s->lines);
-        free(line);
-        return false;
-    }
-
     return true;
 }
 
 char *sorter_pop(struct sorter *s) {
     assert(s != NULL);
 
-    if (!heapq_len(s->q)) {
+    if (!dynarray_len(s->q)) {
         return NULL;
     }
-    return heapq_pop(s->q);
+    return heap_pop(s->q);
 }
 
 int main() {
@@ -117,6 +100,7 @@ int main() {
         char *line;
         while ((line = sorter_pop(s))) {
             printf("%s", line);
+            free(line);
         }
         sorter_free(s);
         return EXIT_SUCCESS;

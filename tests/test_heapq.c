@@ -2,31 +2,37 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "lib/heapq.h"
+#include "../lib/dynarray.h"
+#include "../lib/heap.h"
 
 int main() {
-    struct heapq *q = heapq_alloc();
-    assert(heapq_len(q) == 0);
+    struct dynarray *d = dynarray_alloc(0);
 
-    heapq_push(q, "c");
-    assert(heapq_len(q) == 1);
+    heap_push(d, "c");
+    heap_push(d, "a");
+    heap_push(d, "b");
+    assert(dynarray_len(d) == 3);
 
-    heapq_push(q, "a");
-    assert(heapq_len(q) == 2);
+    assert(!strcmp(heap_pop(d), "a"));
+    assert(!strcmp(heap_pop(d), "b"));
+    assert(!strcmp(heap_pop(d), "c"));
+    assert(!dynarray_len(d));
 
-    heapq_push(q, "b");
-    assert(heapq_len(q) == 3);
+    dynarray_append(d, "c");
+    dynarray_append(d, "d");
+    dynarray_append(d, "b");
+    dynarray_append(d, "a");
+    assert(dynarray_len(d) == 4);
 
-    assert(!strcmp(heapq_pop(q), "a"));
-    assert(heapq_len(q) == 2);
+    heapify(d);
 
-    assert(!strcmp(heapq_pop(q), "b"));
-    assert(heapq_len(q) == 1);
+    assert(!strcmp(heap_pop(d), "a"));
+    assert(!strcmp(heap_pop(d), "b"));
+    assert(!strcmp(heap_pop(d), "c"));
+    assert(!strcmp(heap_pop(d), "d"));
+    assert(!dynarray_len(d));
 
-    assert(!strcmp(heapq_pop(q), "c"));
-    assert(heapq_len(q) == 0);
-
-    heapq_free(q);
+    dynarray_free(d);
 
     return EXIT_SUCCESS;
 }
