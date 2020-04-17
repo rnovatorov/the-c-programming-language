@@ -118,14 +118,10 @@ char *deque_pop(struct deque *d) {
 
     if (i->prev == NULL) {
         assert(d->len == 1);
-        assert(d->first == i);
-        assert(d->last == i);
-
         d->first = NULL;
         d->last = NULL;
     } else {
         assert(d->len > 1);
-        assert(i->prev->next == i);
         i->prev->next = NULL;
         d->last = i->prev;
     }
@@ -145,14 +141,10 @@ char *deque_popleft(struct deque *d) {
 
     if (i->next == NULL) {
         assert(d->len == 1);
-        assert(d->first == i);
-        assert(d->last == i);
-
         d->first = NULL;
         d->last = NULL;
     } else {
         assert(d->len > 1);
-        assert(i->next->prev == i);
         i->next->prev = NULL;
         d->first = i->next;
     }
