@@ -15,7 +15,7 @@ struct sorter {
     struct dynarray *q;
 };
 
-struct sorter *sorter_alloc() {
+struct sorter *sorter_alloc(void) {
     struct sorter *s = malloc(sizeof(struct sorter));
     if (s == NULL) {
         return NULL;
