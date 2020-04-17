@@ -76,7 +76,6 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "usage: %s NUMLINES\n", argv[0]);
         return EXIT_FAILURE;
     }
-
     char *end = NULL;
     errno = 0;
     long numlines = strtol(argv[1], &end, 10);
@@ -97,15 +96,13 @@ int main(int argc, char *argv[]) {
     }
 
     char buf[MAXLEN];
-
-    while (true) {
-        int nread = readline(buf, MAXLEN, stdin);
+    int nread;
+    while ((nread = readline(buf, MAXLEN, stdin))) {
         if (nread < 0) {
             tailer_free(t);
             fprintf(stderr, "error: line too long\n");
             return EXIT_FAILURE;
         }
-
         if (nread > 0) {
             bool ok = tailer_push(t, buf, nread);
             if (!ok) {
@@ -113,18 +110,14 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "error: failed to push to tailer\n");
                 return EXIT_FAILURE;
             }
-            continue;
         }
-
-        assert(!nread);
-        char *line;
-        while ((line = tailer_pop(t))) {
-            printf("%s", line);
-            free(line);
-        }
-        tailer_free(t);
-        return EXIT_SUCCESS;
     }
 
+    char *line;
+    while ((line = tailer_pop(t))) {
+        printf("%s", line);
+        free(line);
+    }
+    tailer_free(t);
     return EXIT_SUCCESS;
 }
