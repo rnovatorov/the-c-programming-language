@@ -25,7 +25,7 @@ struct dynarray *dynarray_alloc(size_t len) {
         return d;
     }
 
-    d->arr = malloc(len * sizeof(char **));
+    d->arr = malloc(len * sizeof(char *));
     if (d->arr == NULL) {
         free(d);
         return NULL;
@@ -70,7 +70,7 @@ static bool dynarray_resize(struct dynarray *d, size_t cap) {
         return true;
     }
 
-    char **arr = realloc(d->arr, cap * sizeof(char **));
+    char **arr = realloc(d->arr, cap * sizeof(char *));
     if (arr == NULL) {
         return false;
     }
