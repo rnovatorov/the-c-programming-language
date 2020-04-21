@@ -7,7 +7,7 @@
 #define DYNARRAY_GROWTH_FACTOR 2
 
 struct dynarray {
-    char **arr;
+    void **arr;
     size_t len;
     size_t cap;
 };
@@ -25,7 +25,7 @@ struct dynarray *dynarray_alloc(size_t len) {
         return d;
     }
 
-    d->arr = malloc(len * sizeof(char *));
+    d->arr = malloc(len * sizeof(void *));
     if (d->arr == NULL) {
         free(d);
         return NULL;
@@ -48,18 +48,18 @@ size_t dynarray_len(struct dynarray *d) {
     return d->len;
 }
 
-char *dynarray_get(struct dynarray *d, size_t i) {
+void *dynarray_get(struct dynarray *d, size_t i) {
     assert(d != NULL);
     assert(i < d->len);
 
     return d->arr[i];
 }
 
-void dynarray_set(struct dynarray *d, size_t i, char *s) {
+void dynarray_set(struct dynarray *d, size_t i, void *v) {
     assert(d != NULL);
     assert(i < d->len);
 
-    d->arr[i] = s;
+    d->arr[i] = v;
 }
 
 static bool dynarray_resize(struct dynarray *d, size_t cap) {
@@ -70,7 +70,7 @@ static bool dynarray_resize(struct dynarray *d, size_t cap) {
         return true;
     }
 
-    char **arr = realloc(d->arr, cap * sizeof(char *));
+    void **arr = realloc(d->arr, cap * sizeof(void *));
     if (arr == NULL) {
         return false;
     }
@@ -80,7 +80,7 @@ static bool dynarray_resize(struct dynarray *d, size_t cap) {
     return true;
 }
 
-bool dynarray_append(struct dynarray *d, char *s) {
+bool dynarray_append(struct dynarray *d, void *v) {
     assert(d != NULL);
 
     size_t len = d->len + 1;
@@ -91,24 +91,24 @@ bool dynarray_append(struct dynarray *d, char *s) {
         }
     }
 
-    d->arr[d->len] = s;
+    d->arr[d->len] = v;
     d->len = len;
 
     return true;
 }
 
-char *dynarray_pop(struct dynarray *d) {
+void *dynarray_pop(struct dynarray *d) {
     assert(d != NULL);
     assert(d->len > 0);
 
-    char *s = d->arr[--d->len];
+    void *v = d->arr[--d->len];
 
     size_t cap = d->cap / DYNARRAY_GROWTH_FACTOR;
     if (d->len <= cap) {
         dynarray_resize(d, cap);
     }
 
-    return s;
+    return v;
 }
 
 void dynarray_swap(struct dynarray *d, size_t i, size_t j) {
@@ -116,7 +116,7 @@ void dynarray_swap(struct dynarray *d, size_t i, size_t j) {
     assert(i < d->len);
     assert(j < d->len);
 
-    char *tmp = d->arr[i];
+    void *tmp = d->arr[i];
     d->arr[i] = d->arr[j];
     d->arr[j] = tmp;
 }
