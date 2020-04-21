@@ -120,3 +120,16 @@ void dynarray_swap(struct dynarray *d, size_t i, size_t j) {
     d->arr[i] = d->arr[j];
     d->arr[j] = tmp;
 }
+
+int dynarray_index(struct dynarray *d, void *v, bool (*cmp)(void *, void *)) {
+    assert(d != NULL);
+    assert(cmp != NULL);
+
+    for (int i = 0; i < d->len; i++) {
+        if (cmp(d->arr[i], v)) {
+            return i;
+        }
+    }
+
+    return -1;
+}
