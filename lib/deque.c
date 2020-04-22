@@ -6,10 +6,10 @@
 struct item {
     struct item *prev;
     struct item *next;
-    char *s;
+    void *v;
 };
 
-static struct item *item_alloc(char *s) {
+static struct item *item_alloc(void *v) {
     struct item *i = malloc(sizeof(struct item));
     if (i == NULL) {
         return false;
@@ -17,7 +17,7 @@ static struct item *item_alloc(char *s) {
 
     i->next = NULL;
     i->prev = NULL;
-    i->s = s;
+    i->v = v;
     return i;
 }
 
@@ -63,10 +63,10 @@ size_t deque_len(struct deque *d) {
     return d->len;
 }
 
-bool deque_append(struct deque *d, char *s) {
+bool deque_append(struct deque *d, void *v) {
     assert(d != NULL);
 
-    struct item *i = item_alloc(s);
+    struct item *i = item_alloc(v);
     if (i == NULL) {
         return false;
     }
@@ -86,10 +86,10 @@ bool deque_append(struct deque *d, char *s) {
     return true;
 }
 
-bool deque_appendleft(struct deque *d, char *s) {
+bool deque_appendleft(struct deque *d, void *v) {
     assert(d != NULL);
 
-    struct item *i = item_alloc(s);
+    struct item *i = item_alloc(v);
     if (i == NULL) {
         return false;
     }
@@ -126,10 +126,10 @@ char *deque_pop(struct deque *d) {
         d->last = i->prev;
     }
 
-    char *s = i->s;
+    void *v = i->v;
     item_free(i);
     d->len--;
-    return s;
+    return v;
 }
 
 char *deque_popleft(struct deque *d) {
@@ -149,8 +149,8 @@ char *deque_popleft(struct deque *d) {
         d->first = i->next;
     }
 
-    char *s = i->s;
+    void *v = i->v;
     item_free(i);
     d->len--;
-    return s;
+    return v;
 }
