@@ -7,7 +7,7 @@
 #include "dynarray.h"
 
 void heapify(struct dynarray *d);
-bool heap_push(struct dynarray *d, char *s);
-char *heap_pop(struct dynarray *d);
+bool heap_push(struct dynarray *d, void *v);
+void *heap_pop(struct dynarray *d);
 
 #endif

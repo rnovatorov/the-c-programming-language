@@ -25,10 +25,10 @@ static void sift_up(struct dynarray *d) {
     }
 }
 
-bool heap_push(struct dynarray *d, char *s) {
+bool heap_push(struct dynarray *d, void *v) {
     assert(d != NULL);
 
-    bool ok = dynarray_append(d, s);
+    bool ok = dynarray_append(d, v);
     if (!ok) {
         return false;
     }
@@ -58,14 +58,14 @@ void static sift_down(struct dynarray *d, size_t p) {
     }
 }
 
-char *heap_pop(struct dynarray *d) {
+void *heap_pop(struct dynarray *d) {
     assert(d != NULL);
 
     dynarray_swap(d, 0, dynarray_len(d) - 1);
-    char *s = dynarray_pop(d);
+    void *v = dynarray_pop(d);
 
     sift_down(d, 0);
-    return s;
+    return v;
 }
 
 void heapify(struct dynarray *d) {
