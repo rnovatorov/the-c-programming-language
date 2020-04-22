@@ -3,33 +3,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct item {
-    struct item *prev;
-    struct item *next;
+struct node {
+    struct node *prev;
+    struct node *next;
     void *v;
 };
 
-static struct item *item_alloc(void *v) {
-    struct item *i = malloc(sizeof(struct item));
-    if (i == NULL) {
+static struct node *node_alloc(void *v) {
+    struct node *n = malloc(sizeof(struct node));
+    if (n == NULL) {
         return false;
     }
 
-    i->next = NULL;
-    i->prev = NULL;
-    i->v = v;
-    return i;
+    n->next = NULL;
+    n->prev = NULL;
+    n->v = v;
+    return n;
 }
 
-static void item_free(struct item *i) {
-    assert(i != NULL);
-
-    free(i);
-}
+static void node_free(struct node *n) { free(n); }
 
 struct deque {
-    struct item *first;
-    struct item *last;
+    struct node *first;
+    struct node *last;
     size_t len;
 };
 
@@ -48,11 +44,11 @@ struct deque *deque_alloc(void) {
 void deque_free(struct deque *d) {
     assert(d != NULL);
 
-    struct item *i = d->first;
-    while (i) {
-        struct item *next = i->next;
-        item_free(i);
-        i = next;
+    struct node *n = d->first;
+    while (n) {
+        struct node *next = n->next;
+        node_free(n);
+        n = next;
     }
     free(d);
 }
@@ -66,46 +62,46 @@ size_t deque_len(struct deque *d) {
 bool deque_append(struct deque *d, void *v) {
     assert(d != NULL);
 
-    struct item *i = item_alloc(v);
-    if (i == NULL) {
+    struct node *n = node_alloc(v);
+    if (n == NULL) {
         return false;
     }
     d->len++;
 
     if (d->last == NULL) {
         assert(d->first == NULL);
-        d->first = i;
-        d->last = i;
+        d->first = n;
+        d->last = n;
         return true;
     }
 
     assert(d->last->next == NULL);
-    d->last->next = i;
-    i->prev = d->last;
-    d->last = i;
+    d->last->next = n;
+    n->prev = d->last;
+    d->last = n;
     return true;
 }
 
 bool deque_appendleft(struct deque *d, void *v) {
     assert(d != NULL);
 
-    struct item *i = item_alloc(v);
-    if (i == NULL) {
+    struct node *n = node_alloc(v);
+    if (n == NULL) {
         return false;
     }
     d->len++;
 
     if (d->first == NULL) {
         assert(d->last == NULL);
-        d->first = i;
-        d->last = i;
+        d->first = n;
+        d->last = n;
         return true;
     }
 
     assert(d->first->prev == NULL);
-    d->first->prev = i;
-    i->next = d->first;
-    d->first = i;
+    d->first->prev = n;
+    n->next = d->first;
+    d->first = n;
     return true;
 }
 
@@ -113,21 +109,21 @@ char *deque_pop(struct deque *d) {
     assert(d != NULL);
     assert(d->len != 0);
 
-    struct item *i = d->last;
-    assert(i != NULL);
+    struct node *n = d->last;
+    assert(n != NULL);
 
-    if (i->prev == NULL) {
+    if (n->prev == NULL) {
         assert(d->len == 1);
         d->first = NULL;
         d->last = NULL;
     } else {
         assert(d->len > 1);
-        i->prev->next = NULL;
-        d->last = i->prev;
+        n->prev->next = NULL;
+        d->last = n->prev;
     }
 
-    void *v = i->v;
-    item_free(i);
+    void *v = n->v;
+    node_free(n);
     d->len--;
     return v;
 }
@@ -136,21 +132,21 @@ char *deque_popleft(struct deque *d) {
     assert(d != NULL);
     assert(d->len != 0);
 
-    struct item *i = d->first;
-    assert(i != NULL);
+    struct node *n = d->first;
+    assert(n != NULL);
 
-    if (i->next == NULL) {
+    if (n->next == NULL) {
         assert(d->len == 1);
         d->first = NULL;
         d->last = NULL;
     } else {
         assert(d->len > 1);
-        i->next->prev = NULL;
-        d->first = i->next;
+        n->next->prev = NULL;
+        d->first = n->next;
     }
 
-    void *v = i->v;
-    item_free(i);
+    void *v = n->v;
+    node_free(n);
     d->len--;
     return v;
 }
