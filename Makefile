@@ -10,6 +10,9 @@ all:
 $(patsubst %.c,%,$(wildcard *.c)):
 	$(CC) -g $(LIB)/*.c $@.c -o $(DST)/$@
 
+test:
+	$(MAKE) $(patsubst $(TESTS)/%.c,%,$(wildcard $(TESTS)/*.c))
+
 $(patsubst $(TESTS)/%.c,%,$(wildcard $(TESTS)/*.c)):
 	$(CC) $(LIB)/*c $(TESTS)/$@.c -o $(DST)/$@ && $(DST)/$@
 
