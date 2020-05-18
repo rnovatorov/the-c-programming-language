@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "lib/readline.h"
+
 void reverse(char line[], int len) {
     char tmp;
     int left, right;
@@ -14,27 +16,13 @@ void reverse(char line[], int len) {
     }
 }
 
-int readline(char buf[], int maxlen) {
-    int i = 0;
-    char c;
-
-    while (i < maxlen && (c = getchar()) != EOF) {
-        if (c == '\n') {
-            buf[i] = '\0';
-            return i;
-        }
-        buf[i++] = c;
-    }
-
-    return -1;
-}
+#define MAXLEN 6
 
 int main() {
     int len;
-    int maxlen = 4;
-    char line[maxlen];
+    char line[MAXLEN];
 
-    while ((len = readline(line, maxlen)) > 0) {
+    while ((len = readline(line, MAXLEN, stdin)) > 0) {
         reverse(line, len);
         printf("%s\n", line);
     }
