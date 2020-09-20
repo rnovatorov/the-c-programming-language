@@ -39,7 +39,12 @@ void linestore_free(struct linestore *s) {
 
 int main() {
     struct linestore *s = linestore_alloc();
-    struct hashmap *m = hashmap_alloc(&djb2);
+
+    struct hashmap_params params = {
+        .num_buckets = 8,
+        .hashfunc = &djb2,
+    };
+    struct hashmap *m = hashmap_alloc(params);
 
     char buf[MAXLEN];
     int nread;

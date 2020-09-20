@@ -6,7 +6,12 @@
 
 struct hashmap;
 
-struct hashmap *hashmap_alloc(unsigned long (*hashfunc)(char *));
+struct hashmap_params {
+    size_t num_buckets;
+    unsigned long (*hashfunc)(char *);
+};
+struct hashmap *hashmap_alloc(struct hashmap_params params);
+
 void hashmap_free(struct hashmap *m);
 
 size_t hashmap_len(struct hashmap *m);

@@ -1,11 +1,8 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdlib.h>
-
 #include <stdio.h>
-
-#define HASHMAP_INIT_BUCKETS 8
+#include <stdlib.h>
 
 // TODO: Resize.
 // #define HASHMAP_GROW_FACTOR 2
@@ -143,15 +140,21 @@ struct hashmap {
     unsigned long (*hashfunc)(char *);
 };
 
-struct hashmap *hashmap_alloc(unsigned long (*hashfunc)(char *)) {
-    assert(hashfunc != NULL);
+struct hashmap_params {
+    size_t num_buckets;
+    unsigned long (*hashfunc)(char *);
+};
+
+struct hashmap *hashmap_alloc(struct hashmap_params params) {
+    assert(params.num_buckets > 0);
+    assert(params.hashfunc != NULL);
 
     struct hashmap *m = malloc(sizeof(struct hashmap));
     if (m == NULL) {
         return NULL;
     }
 
-    m->num_buckets = HASHMAP_INIT_BUCKETS;
+    m->num_buckets = params.num_buckets;
     m->buckets = calloc(m->num_buckets, sizeof(struct bucket *));
     if (m->buckets == NULL) {
         free(m);
@@ -159,7 +162,7 @@ struct hashmap *hashmap_alloc(unsigned long (*hashfunc)(char *)) {
     }
 
     m->num_entries = 0;
-    m->hashfunc = hashfunc;
+    m->hashfunc = params.hashfunc;
 
     return m;
 }

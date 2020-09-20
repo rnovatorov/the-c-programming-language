@@ -8,7 +8,11 @@ int main() {
     struct hashmap_lookup lkp;
 
     // alloc
-    struct hashmap *m = hashmap_alloc(&djb2);
+    struct hashmap_params params = {
+        .num_buckets = 8,
+        .hashfunc = &djb2,
+    };
+    struct hashmap *m = hashmap_alloc(params);
     assert(hashmap_len(m) == 0);
 
     // set and get
