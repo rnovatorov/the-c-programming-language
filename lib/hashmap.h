@@ -8,6 +8,8 @@ struct hashmap;
 
 struct hashmap_params {
     size_t num_buckets;
+    size_t load_threshold;
+    size_t grow_factor;
     unsigned long (*hashfunc)(char *);
 };
 struct hashmap *hashmap_alloc(struct hashmap_params params);
@@ -15,6 +17,7 @@ struct hashmap *hashmap_alloc(struct hashmap_params params);
 void hashmap_free(struct hashmap *m);
 
 size_t hashmap_len(struct hashmap *m);
+size_t hashmap_num_buckets(struct hashmap *m);
 
 struct hashmap_lookup {
     void *value;

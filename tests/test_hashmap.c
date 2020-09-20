@@ -10,6 +10,8 @@ int main() {
     // alloc
     struct hashmap_params params = {
         .num_buckets = 8,
+        .load_threshold = 2,
+        .grow_factor = 2,
         .hashfunc = &djb2,
     };
     struct hashmap *m = hashmap_alloc(params);
@@ -87,6 +89,33 @@ int main() {
     lkp = hashmap_get(m, "ham");
     assert(!lkp.ok);
     assert(lkp.value == NULL);
+
+    // grow
+    assert(hashmap_set(m, "answer", "42"));
+
+    char buf[2] = {0};
+    char i = 1;
+    for (; i < params.num_buckets * params.load_threshold; i++) {
+        buf[0] = 'A' + i;
+        hashmap_set(m, buf, "grow");
+
+        assert(hashmap_len(m) == i + 1);
+        assert(hashmap_num_buckets(m) == params.num_buckets);
+
+        lkp = hashmap_get(m, "answer");
+        assert(lkp.ok);
+        assert(!strcmp(lkp.value, "42"));
+    }
+
+    buf[0] = 'A' + i;
+    hashmap_set(m, buf, "grow");
+
+    assert(hashmap_len(m) == i + 1);
+    assert(hashmap_num_buckets(m) == params.grow_factor * params.num_buckets);
+
+    lkp = hashmap_get(m, "answer");
+    assert(lkp.ok);
+    assert(!strcmp(lkp.value, "42"));
 
     // free
     hashmap_free(m);

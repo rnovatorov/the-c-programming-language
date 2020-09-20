@@ -41,7 +41,9 @@ int main() {
     struct linestore *s = linestore_alloc();
 
     struct hashmap_params params = {
-        .num_buckets = 8,
+        .num_buckets = 2,
+        .load_threshold = 2,
+        .grow_factor = 2,
         .hashfunc = &djb2,
     };
     struct hashmap *m = hashmap_alloc(params);
