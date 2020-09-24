@@ -1,8 +1,7 @@
 #include <assert.h>
 #include <stdbool.h>
-#include <stdlib.h>
-
 #include <stdio.h>
+#include <stdlib.h>
 
 #define DYNARRAY_GROWTH_FACTOR 2
 
