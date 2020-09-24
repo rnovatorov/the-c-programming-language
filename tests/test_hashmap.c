@@ -117,6 +117,22 @@ int main() {
     assert(lkp.ok);
     assert(!strcmp(lkp.value, "42"));
 
+    // collision
+    char *k1 = "1r";
+    char *k2 = "30";
+    assert(djb2(k1) == djb2(k2));
+
+    hashmap_set(m, k1, "foo");
+    hashmap_set(m, k2, "bar");
+
+    lkp = hashmap_get(m, k1);
+    assert(lkp.ok);
+    assert(!strcmp(lkp.value, "foo"));
+
+    lkp = hashmap_get(m, k2);
+    assert(lkp.ok);
+    assert(!strcmp(lkp.value, "bar"));
+
     // free
     hashmap_free(m);
 }

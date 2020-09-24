@@ -3,19 +3,28 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "strdupl.h"
 
 struct entry {
-    unsigned long hash;
+    char *key;
     void *value;
     struct entry *next;
 };
 
-static struct entry *entry_alloc(unsigned long hash, void *value) {
+static struct entry *entry_alloc(char *key, void *value) {
     struct entry *e = malloc(sizeof(struct entry));
     if (e == NULL) {
         return NULL;
     }
-    e->hash = hash;
+
+    e->key = strdupl(key);
+    if (e->key == NULL) {
+        free(e);
+        return NULL;
+    }
+
     e->value = value;
     e->next = NULL;
     return e;
@@ -24,6 +33,7 @@ static struct entry *entry_alloc(unsigned long hash, void *value) {
 static void entry_free(struct entry *e) {
     assert(e != NULL);
 
+    free(e->key);
     free(e);
 }
 
@@ -108,7 +118,9 @@ static bool hashmap_grow(struct hashmap *m) {
 
     for (int b = 0; b < m->num_buckets; b++) {
         for (struct entry *next, *e = m->buckets[b]; e != NULL; e = next) {
-            size_t newb = e->hash % num_buckets;
+            // FIXME: Avoid recalculating the hash by storing it in entry.
+            unsigned long hash = m->hashfunc(e->key);
+            size_t newb = hash % num_buckets;
             next = e->next;
             e->next = buckets[newb];
             buckets[newb] = e;
@@ -121,13 +133,15 @@ static bool hashmap_grow(struct hashmap *m) {
     return true;
 }
 
+static bool keys_equal(char *s, char *t) { return !strcmp(s, t); }
+
 enum bucket_add_status { BUCKET_ADD_ERROR, BUCKET_ADD_RESET, BUCKET_ADD_NEW };
 
-static enum bucket_add_status bucket_add(struct hashmap *m, size_t b,
-                                         unsigned long hash, void *value) {
+static enum bucket_add_status bucket_add(struct hashmap *m, size_t b, char *key,
+                                         void *value) {
     struct entry *e = m->buckets[b];
     if (e == NULL) {
-        e = entry_alloc(hash, value);
+        e = entry_alloc(key, value);
         if (e == NULL) {
             return BUCKET_ADD_ERROR;
         }
@@ -136,7 +150,7 @@ static enum bucket_add_status bucket_add(struct hashmap *m, size_t b,
     }
 
     for (;; e = e->next) {
-        if (e->hash == hash) {
+        if (keys_equal(e->key, key)) {
             e->value = value;
             return BUCKET_ADD_RESET;
         }
@@ -145,7 +159,7 @@ static enum bucket_add_status bucket_add(struct hashmap *m, size_t b,
         }
     }
 
-    e->next = entry_alloc(hash, value);
+    e->next = entry_alloc(key, value);
     if (e->next == NULL) {
         return BUCKET_ADD_ERROR;
     }
@@ -166,7 +180,7 @@ bool hashmap_set(struct hashmap *m, char *key, void *value) {
     unsigned long hash = m->hashfunc(key);
     size_t b = hash % m->num_buckets;
 
-    enum bucket_add_status s = bucket_add(m, b, hash, value);
+    enum bucket_add_status s = bucket_add(m, b, key, value);
     if (s == BUCKET_ADD_ERROR) {
         return false;
     }
@@ -182,9 +196,9 @@ struct hashmap_lookup {
 };
 
 static struct hashmap_lookup bucket_get(struct hashmap *m, size_t b,
-                                        unsigned long hash) {
+                                        char *key) {
     for (struct entry *e = m->buckets[b]; e != NULL; e = e->next) {
-        if (e->hash == hash) {
+        if (keys_equal(e->key, key)) {
             struct hashmap_lookup lkp = {.value = e->value, .ok = true};
             return lkp;
         }
@@ -199,16 +213,16 @@ struct hashmap_lookup hashmap_get(struct hashmap *m, char *key) {
     unsigned long hash = m->hashfunc(key);
     size_t b = hash % m->num_buckets;
 
-    return bucket_get(m, b, hash);
+    return bucket_get(m, b, key);
 }
 
-static bool bucket_delete(struct hashmap *m, size_t b, unsigned long hash) {
+static bool bucket_delete(struct hashmap *m, size_t b, char *key) {
     struct entry *e = m->buckets[b];
     if (e == NULL) {
         return false;
     }
 
-    if (e->hash == hash) {
+    if (keys_equal(e->key, key)) {
         struct entry *next = e->next;
         m->buckets[b] = next;
         entry_free(e);
@@ -217,7 +231,7 @@ static bool bucket_delete(struct hashmap *m, size_t b, unsigned long hash) {
 
     struct entry *prev, *cur;
     for (prev = e, cur = prev->next; cur != NULL; prev = cur, cur = cur->next) {
-        if (cur->hash == hash) {
+        if (keys_equal(cur->key, key)) {
             prev->next = cur->next;
             entry_free(cur);
             return true;
@@ -233,7 +247,7 @@ bool hashmap_delete(struct hashmap *m, char *key) {
     unsigned long hash = m->hashfunc(key);
     size_t b = hash % m->num_buckets;
 
-    bool deleted = bucket_delete(m, b, hash);
+    bool deleted = bucket_delete(m, b, key);
     if (deleted) {
         m->num_entries--;
     }
